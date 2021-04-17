@@ -4,7 +4,10 @@ export default {
   simulation: {
     calculate: (data, callback, error) => {
       axios
-        .post("/api/simulation/calculate", { data })
+        .post(
+          "https://contagion-calculator-backend.herokuapp.com/api/simulation/calculate",
+          { data }
+        )
         .then((res) => {
           callback(res.data);
         })
