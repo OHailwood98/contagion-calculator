@@ -1,0 +1,11 @@
+$theme-colors: (
+  "primary": #87face,
+  "secondary": #547cff,
+  "unchecked": #616161,
+  "checked": #ff3636,
+  "high": #d90707,
+  "medium": #ff4d00,
+  "low": #ffc800,
+);
+
+@import "~bootstrap/scss/bootstrap.scss";
