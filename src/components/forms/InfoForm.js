@@ -190,7 +190,7 @@ class InfoForm extends React.Component {
                   <Form.Control
                     type="text"
                     id="popDensity"
-                    placeholder="250"
+                    placeholder="eg. 250"
                     value={data.popDensity}
                     onChange={this.onChange}
                     onBlur={this.onBlur}
@@ -222,7 +222,7 @@ class InfoForm extends React.Component {
                     type="text"
                     id="population"
                     name="population"
-                    placeholder="75000000"
+                    placeholder="eg. 75000000"
                     value={data.population}
                     onChange={this.onChange}
                     onBlur={this.onBlur}
