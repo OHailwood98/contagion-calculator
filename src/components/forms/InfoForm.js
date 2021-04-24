@@ -162,12 +162,11 @@ class InfoForm extends React.Component {
     }
     if (!data.popDensity) error.popDensity = "Cannot be Empty";
     if (!data.population) error.population = "Cannot be Empty";
-    if (!data.minInc || !data.maxInc) error.incubation = "Cannot be Empty";
     if (!regex.test(data.minInc)) error.incubation = "Enter an Integer";
     if (!regex.test(data.maxInc)) error.incubation = "Enter an Integer";
     if (parseInt(data.minInc) >= parseInt(data.maxInc))
       error.incubation = "Min must be smaller than Max";
-
+    if (!data.minInc || !data.maxInc) error.incubation = "Cannot be Empty";
     return error;
   }
 
