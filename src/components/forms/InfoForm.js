@@ -39,10 +39,16 @@ class InfoForm extends React.Component {
         maxInc: "",
         time: "day",
         transmission: {
-          waterborne: "0",
-          airborne: "0",
-          bloodborne: "0",
-          contact: "0",
+          contamination: "1",
+          airborne: "1",
+          bloodborne: "1",
+          contact: "1",
+        },
+        modifiers: {
+          socialDistancing: "unchecked",
+          education: "unchecked",
+          masks: "unchecked",
+          quarantine: "unchecked",
         },
       },
       error: {},
@@ -52,33 +58,13 @@ class InfoForm extends React.Component {
     this.onBlur = this.onBlur.bind(this);
     this.submit = this.submit.bind(this);
     this.onTransChange = this.onTransChange.bind(this);
-  }
-
-  handleButtonClick(event) {
-    var id = event.target.id;
-    if (this.state.data.transmission[id] === "unchecked") {
-      this.setState({
-        ...this.state,
-        data: {
-          ...this.state.data,
-          transmission: { ...this.state.data.transmission, [id]: "checked" },
-        },
-      });
-    } else {
-      this.setState({
-        ...this.state,
-        data: {
-          ...this.state.data,
-          transmission: { ...this.state.data.transmission, [id]: "unchecked" },
-        },
-      });
-    }
+    this.onPathogenChange = this.onPathogenChange.bind(this);
   }
 
   onChange(event) {
     const { id, value } = event.target;
     this.setState({
-      ...this.state,
+      ...this.state.data,
       data: { ...this.state.data, [id]: value },
     });
   }
@@ -94,26 +80,90 @@ class InfoForm extends React.Component {
     });
   }
 
-  submit() {
-    var err = this.validation();
-    var data = Object.assign({}, this.state.data);
-    this.setState({ ...this.state, error: err });
-    if (Object.keys(this.state.error).length === 0) {
-      if (this.state.data.time === "week") {
-        data.minInc = data.minInc * 7;
-        data.maxInc = data.maxInc * 7;
-      }
-      this.props.submit(
-        data,
-        (cb) => {
-          console.log(cb);
+  onPathogenChange(event) {
+    const { value } = event.target;
+    switch (value) {
+      case "bacteria":
+        this.setState({
+          ...this.state,
+          data: {
+            ...this.state.data,
+            type: "bacteria",
+            transmission: {
+              contamination: "1",
+              airborne: "1",
+              bloodborne: "1",
+              contact: "1",
+            },
+          },
+        });
+        break;
+      case "virus":
+        this.setState({
+          ...this.state,
+          data: {
+            ...this.state.data,
+            type: "virus",
+            transmission: {
+              contamination: "1",
+              airborne: "2",
+              bloodborne: "2",
+              contact: "1",
+            },
+          },
+        });
+        break;
+      case "fungus":
+        this.setState({
+          ...this.state,
+          data: {
+            ...this.state.data,
+            type: "fungus",
+            transmission: {
+              contamination: "1",
+              airborne: "1",
+              bloodborne: "1",
+              contact: "2",
+            },
+          },
+        });
+        break;
+      case "parasite":
+        this.setState({
+          ...this.state,
+          data: {
+            ...this.state.data,
+            type: "parasite",
+            transmission: {
+              contamination: "2",
+              airborne: "1",
+              bloodborne: "1",
+              contact: "1",
+            },
+          },
+        });
+        break;
+    }
+  }
+
+  handleButtonClick(event) {
+    var id = event.target.id;
+    if (this.state.data.modifiers[id] === "unchecked") {
+      this.setState({
+        ...this.state,
+        data: {
+          ...this.state.data,
+          modifiers: { ...this.state.data.modifiers, [id]: "checked" },
         },
-        (e) => {
-          console.log(e);
-        }
-      );
+      });
     } else {
-      console.log("fail");
+      this.setState({
+        ...this.state,
+        data: {
+          ...this.state.data,
+          modifiers: { ...this.state.data.modifiers, [id]: "unchecked" },
+        },
+      });
     }
   }
 
@@ -146,14 +196,14 @@ class InfoForm extends React.Component {
 
   validation() {
     var { error, data } = this.state;
-    var { waterborne, airborne, bloodborne, contact } = data.transmission;
+    var { contamination, airborne, bloodborne, contact } = data.transmission;
     var regex = new RegExp("^[0-9]+$");
 
     delete error.transmission;
     delete error.incubation;
 
     if (
-      waterborne === "0" &&
+      contamination === "0" &&
       airborne === "0" &&
       bloodborne === "0" &&
       contact === "0"
@@ -170,12 +220,35 @@ class InfoForm extends React.Component {
     return error;
   }
 
+  submit() {
+    var err = this.validation();
+    var data = Object.assign({}, this.state.data);
+    this.setState({ ...this.state, error: err });
+    if (Object.keys(this.state.error).length === 0) {
+      if (this.state.data.time === "week") {
+        data.minInc = data.minInc * 7;
+        data.maxInc = data.maxInc * 7;
+      }
+      this.props.submit(
+        data,
+        (cb) => {
+          console.log(cb);
+        },
+        (e) => {
+          console.log(e);
+        }
+      );
+    } else {
+      console.log("fail");
+    }
+  }
+
   render() {
     const { error, data } = this.state;
     return (
       <BorderDiv>
         <Form>
-          <h5>- Population Data -</h5>
+          <h5>- Population Structure -</h5>
           <TextLeftDiv>
             {error.global && (
               <Alert variant="danger">
@@ -235,21 +308,22 @@ class InfoForm extends React.Component {
             </Row>
           </TextLeftDiv>
           <hr />
-          <h5>- Infection Data -</h5>
+          <h5>- Pathogen Structure -</h5>
           <Row>
             <Col xs={{ span: 2, offset: 1 }}>
               <Form.Group>
-                <Form.Label>Infection Type</Form.Label>
+                <Form.Label>Pathogen Type</Form.Label>
                 <Form.Control
                   as="select"
                   id="type"
                   value={data.type}
-                  onChange={this.onChange}
+                  onChange={this.onPathogenChange}
                   style={{ textAlign: "center" }}
                 >
                   <option value="bacteria">Bacteria</option>
                   <option value="virus">Virus</option>
                   <option value="fungus">Fungus</option>
+                  <option value="parasite">Parasite</option>
                 </Form.Control>
               </Form.Group>
             </Col>
@@ -290,11 +364,11 @@ class InfoForm extends React.Component {
           <Row>
             <Col xs={{ span: 2, offset: 0 }}>
               <Form.Group>
-                <Form.Label>Waterborne</Form.Label>
+                <Form.Label>Contamination</Form.Label>
                 <Form.Control
                   as="select"
-                  id="waterborne"
-                  value={data.transmission.waterborne}
+                  id="contamination"
+                  value={data.transmission.contamination}
                   onChange={this.onTransChange}
                   style={{ textAlign: "center" }}
                 >
@@ -307,7 +381,7 @@ class InfoForm extends React.Component {
             </Col>
             <Col xs={{ span: 2, offset: 1 }}>
               <Form.Group>
-                <Form.Label>Airborne</Form.Label>
+                <Form.Label>Airborne Droplets</Form.Label>
                 <Form.Control
                   as="select"
                   id="airborne"
@@ -354,6 +428,67 @@ class InfoForm extends React.Component {
                   <option value="2">Mid</option>
                   <option value="3">High</option>
                 </Form.Control>
+              </Form.Group>
+            </Col>
+            {error.transmission && (
+              <Col xs={{ span: 10, offset: 1 }}>
+                <InlineError message={error.transmission.toString()} />
+              </Col>
+            )}
+          </Row>
+          <hr />
+          <h5>- Modifiers -</h5>
+          <Row>
+            <Col xs={{ span: 2, offset: 0 }}>
+              <Form.Group>
+                <Form.Label>Social Distancing</Form.Label>
+                <Button
+                  variant={data.modifiers.socialDistancing}
+                  id="socialDistancing"
+                  onClick={this.handleButtonClick}
+                  block
+                >
+                  {data.modifiers.socialDistancing === "checked" ? "Yes" : "No"}
+                </Button>
+              </Form.Group>
+            </Col>
+            <Col xs={{ span: 2, offset: 1 }}>
+              <Form.Group>
+                <Form.Label>Health Education</Form.Label>
+                <Button
+                  variant={data.modifiers.education}
+                  id="education"
+                  onClick={this.handleButtonClick}
+                  block
+                >
+                  {data.modifiers.education === "checked" ? "Yes" : "No"}
+                </Button>
+              </Form.Group>
+            </Col>
+            <Col xs={{ span: 2, offset: 2 }}>
+              <Form.Group>
+                <Form.Label>Mask Mandate</Form.Label>
+                <Button
+                  variant={data.modifiers.masks}
+                  id="masks"
+                  onClick={this.handleButtonClick}
+                  block
+                >
+                  {data.modifiers.masks === "checked" ? "Yes" : "No"}
+                </Button>
+              </Form.Group>
+            </Col>
+            <Col xs={{ span: 2, offset: 1 }}>
+              <Form.Group>
+                <Form.Label>Quarantine</Form.Label>
+                <Button
+                  variant={data.modifiers.quarantine}
+                  id="quarantine"
+                  onClick={this.handleButtonClick}
+                  block
+                >
+                  {data.modifiers.quarantine === "checked" ? "Yes" : "No"}
+                </Button>
               </Form.Group>
             </Col>
             {error.transmission && (

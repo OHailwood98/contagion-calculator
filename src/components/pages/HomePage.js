@@ -12,12 +12,19 @@ const SizingDiv = Styled.div`
 const MainBody = Styled.body`
   text-align: center;
 `;
+
+const Disclaimer = Styled.h6`
+  color: #949494
+`;
 function HomePage() {
   return (
     <MainBody>
       <SizingDiv>
         <br />
         <EstimaterForm />
+        <br />
+        <br />
+        <Disclaimer>For Educational Purposes Only</Disclaimer>
       </SizingDiv>
     </MainBody>
   );

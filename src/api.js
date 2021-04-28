@@ -6,6 +6,7 @@ export default {
       axios
         .post(
           "https://contagion-calculator-backend.herokuapp.com/api/simulation/calculate",
+          //"/api/simulation/calculate",
           { data }
         )
         .then((res) => {
