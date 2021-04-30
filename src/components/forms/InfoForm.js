@@ -211,6 +211,8 @@ class InfoForm extends React.Component {
       error.transmission = "At least 1 Transmision Method must be Selected";
     }
     if (!data.popDensity) error.popDensity = "Cannot be Empty";
+    if (data.popDensity > 10000)
+      error.popDensity = "Density cannot be more than 10000";
     if (!data.population) error.population = "Cannot be Empty";
     if (!regex.test(data.minInc)) error.incubation = "Enter an Integer";
     if (!regex.test(data.maxInc)) error.incubation = "Enter an Integer";
